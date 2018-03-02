@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config>
+    <tabs>
+        <av_priceupdate translate="label">
+            <label>AV_Priceupdate</label>
+            <sort_order>150</sort_order>
+        </av_priceupdate>
+    </tabs>
+    <sections>
+        <av_priceupdate translate="label" module="adminhtml">
+            <label>Config</label>
+            <tab>av_priceupdate</tab>
+            <sort_order>10</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label comment">
+                    <label>General</label>
+                    <sort_order>50</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <increase translate="label comment">
+                            <label>Percent price increase</label>
+                            <comment><![CDATA[Price increase in percent <br> Example: 5%, 25% etc.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </increase>
+                    </fields>
+                </general>
+            </groups>
+        </av_priceupdate>
+    </sections>
+</config>

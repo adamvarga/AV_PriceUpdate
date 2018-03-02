@@ -1,0 +1,10 @@
+{
+    "name":"av/priceupdate",
+    "type":"magento-module",
+    "license":"OSL-3.0",
+    "homepage":"https://github.com/adamvarga/AV_PriceUpdate",
+    "description":"Global price increase from backend with email notification",
+    "require":{
+        "magento-hackathon/magento-composer-installer":"*"
+    }
+}

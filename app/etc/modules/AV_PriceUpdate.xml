@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <AV_PriceUpdate>
+            <active>true</active>
+            <codePool>local</codePool>
+        </AV_PriceUpdate>
+    </modules>
+</config>
