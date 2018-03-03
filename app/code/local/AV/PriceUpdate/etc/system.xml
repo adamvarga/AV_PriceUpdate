@@ -21,16 +21,28 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
+                    <comment><![CDATA[The update is every 15 minutes triggered with cronjob. <br> Error in exepction.log.]]></comment>
                     <fields>
                         <increase translate="label comment">
-                            <label>Percent price increase</label>
-                            <comment><![CDATA[Price increase in percent <br> Example: 5%, 25% etc.]]></comment>
+                            <label>Percent price increase / decrease</label>
+                            <comment><![CDATA[Price global increase / decrease in percent <br> Example: 5%, 25%, -50%, -75% etc. <br> <strong>Please remove the percent value here, if you want update the prices with custom csv!</strong>]]></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </increase>
+                        <file translate="label comment">
+                            <label>Custom price update with CSV</label>
+                            <comment><![CDATA[File format: sku + new price <br> <strong>Please remove the csv file, if you want update the prices only with percent value!</strong> <br> File saved in <strong><span style="color: red;">var/priceupdate</span></strong> folder.]]></comment>
+                            <frontend_type>file</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_file</backend_model>
+                            <upload_dir>var/priceupdate</upload_dir>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </file>
                     </fields>
                 </general>
             </groups>
