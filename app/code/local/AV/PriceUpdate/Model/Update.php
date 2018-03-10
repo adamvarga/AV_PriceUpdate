@@ -12,14 +12,12 @@ class AV_PriceUpdate_Model_Update
     }
 
     /*
-     * Add finish report
+     * Get product collection
      */
 
-    public function runFinishReport()
+    public function getProductCollection()
     {
-        $this->clearIndex();
-        $this->clearCache();
-        $this->sendMail();
+        return Mage::getResourceModel('catalog/product_collection')->addAttributeToSelect('*');
     }
 
     /*
@@ -89,18 +87,26 @@ class AV_PriceUpdate_Model_Update
             if ($lines == 0) {
                 continue;
             }
+
             $sku = $line[0];
             $price = $line[1];
+            $special_price = $line[2];
             $format_price = preg_replace("/[^0-9,.]/", "", $price);
+            $format_special_price = preg_replace("/[^0-9,.]/", "", $special_price);
             $product_id = Mage::getModel("catalog/product")->getIdBySku($sku);
-            if ($product_id && $format_price) {
-                $product = Mage::getModel('catalog/product')->load($product_id);
-                $resource = $this->getResource($product);
-                $product->setData('price', $format_price);
-                $resource->saveAttribute($product, 'price');
+            $update_resource = Mage::getResourceSingleton('catalog/product_action');
+
+            if ($product_id) {
+                if ($format_price || $format_special_price) {
+                    $update_resource->updateAttributes(
+                        array($product_id),
+                        array(
+                            'price' => $format_price,
+                            'special_price' => $format_special_price
+                        ), 0);
+                }
             } else {
                 Mage::log('Product - ' . $sku . ' not found', Zend_Log::ERR, 'exception.log', true);
-
             }
         }
         $this->runFinishReport();
@@ -118,10 +124,10 @@ class AV_PriceUpdate_Model_Update
     }
 
     /*
-     * Get product resource to change the price
+     * Get product resource to change the regular price
      */
 
-    public function changePrice($product, $percent)
+    public function changeRegularPrice($product, $percent)
     {
         if ($product && $percent) {
             $resource = $this->getResource($product);
@@ -131,13 +137,36 @@ class AV_PriceUpdate_Model_Update
     }
 
     /*
+     * Get product resource to change the special price
+     */
+
+    public function changeSpecialPrice($product, $percent)
+    {
+        if ($product && $percent) {
+            $resource = $this->getResource($product);
+            $product->setData('special_price', $percent);
+            return $resource->saveAttribute($product, 'special_price');
+        }
+    }
+
+    /*
+    *  Add finish report
+    */
+
+    public function runFinishReport()
+    {
+        $this->clearIndex();
+        $this->clearCache();
+        $this->sendMail();
+    }
+
+    /*
      * Load product collection to change the price
      */
 
     public function getProducts()
     {
-        $products = Mage::getResourceModel('catalog/product_collection')
-            ->addAttributeToSelect('price', 'id');
+        $products = $this->getProductCollection();
 
         if ($this->getPercent()) {
             $increase_value = $this->getPercent();
@@ -155,12 +184,24 @@ class AV_PriceUpdate_Model_Update
 
         foreach ($products as $product) {
             $product_price = (float)$product->getPrice();
+            $product_special_price = (float)$product->getSpecialPrice();
+
             if (strpos($increase_value, '-') !== false) {
-                $new_price_minus = $product_price + ($product_price * $increase_value);
-                $this->changePrice($product, $new_price_minus);
+                if ($product_special_price) {
+                    $new_price_minus = $product_special_price + ($product_special_price * $increase_value);
+                    $this->changeSpecialPrice($product, $new_price_minus);
+                } else {
+                    $new_price_minus = $product_price + ($product_price * $increase_value);
+                    $this->changeRegularPrice($product, $new_price_minus);
+                }
             } else {
-                $new_price_plus = $product_price + ($product_price * $increase_value);
-                $this->changePrice($product, $new_price_plus);
+                if ($product_special_price) {
+                    $new_price_plus = $product_special_price + ($product_special_price * $increase_value);
+                    $this->changeSpecialPrice($product, $new_price_plus);
+                } else {
+                    $new_price_plus = $product_price + ($product_price * $increase_value);
+                    $this->changeRegularPrice($product, $new_price_plus);
+                }
             }
         }
         $this->runFinishReport();
@@ -172,7 +213,7 @@ class AV_PriceUpdate_Model_Update
 
     public function sendMail($msg_error)
     {
-        $template_id = 'result';
+        $template_id = 'priceupdate';
         $mail = Mage::getModel('core/email_template')->loadDefault($template_id);
         $mail_from = Mage::getStoreConfig('trans_email/ident_general/email');
         $mail_to = Mage::getStoreConfig('trans_email/ident_custom1/email');
@@ -200,9 +241,9 @@ class AV_PriceUpdate_Model_Update
 
         try {
             $mail->send($mail_to, $customer_name, $email_template_variables);
-            Mage::getSingleton('core/session')->addSuccess('Your request has been sent');
         } catch (Exception $e) {
-            Mage::getSingleton('core/session')->addError('Unable to send.');
+            Mage::log($e, 'exception.log', true);
+
         }
     }
 

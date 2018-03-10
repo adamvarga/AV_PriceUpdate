@@ -18,11 +18,11 @@
         </models>
         <template>
             <email>
-                <result module="av_priceupdate">
+                <priceupdate module="av_priceupdate">
                     <label>Price update template</label>
-                    <file>sales/result.html</file>
+                    <file>report/priceupdate.html</file>
                     <type>html</type>
-                </result>
+                </priceupdate>
             </email>
         </template>
         <helpers>
